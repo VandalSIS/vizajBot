@@ -4,7 +4,7 @@ const TidioChat: React.FC = () => {
   useEffect(() => {
     // Load Tidio chat script
     const script = document.createElement('script');
-    script.src = '//code.tidio.co/YOUR_TIDIO_ID.js'; // Replace with your actual Tidio ID
+    script.src = '//code.tidio.co/oxwnjjzc4qelsfnr39inuadao64rgxmv.js';
     script.async = true;
     document.head.appendChild(script);
 

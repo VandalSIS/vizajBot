@@ -4,6 +4,7 @@ import { CartProvider } from './contexts/CartContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
+import TidioChat from './components/TidioChat';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -30,6 +31,7 @@ function App() {
           </main>
           <Footer />
           <CookieConsent />
+          <TidioChat />
         </div>
       </Router>
     </CartProvider>
