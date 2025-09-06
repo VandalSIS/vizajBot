@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, Package, Truck, Home, ShoppingBag } from 'lucide-react';
 import MetaPixel, { trackPurchase } from '../components/MetaPixel';
-import { getPixelId } from '../config/metaPixel';
+import { getPixelId, isMetaPixelConfigured } from '../config/metaPixel';
 
 const SuccessPage: React.FC = () => {
   const [orderId, setOrderId] = useState<string>('');
@@ -21,8 +21,10 @@ const SuccessPage: React.FC = () => {
       if (foundOrder) {
         setOrder(foundOrder);
         
-        // Track purchase conversion for Meta Ads
-        trackPurchase(foundOrder.total, 'MDL', foundOrder.id);
+        // Track purchase conversion for Meta Ads (if configured)
+        if (isMetaPixelConfigured()) {
+          trackPurchase(foundOrder.total, 'MDL', foundOrder.id);
+        }
       }
     } else {
       // If no order parameter in URL, get the most recent order
@@ -32,8 +34,10 @@ const SuccessPage: React.FC = () => {
         setOrderId(latestOrder.id);
         setOrder(latestOrder);
         
-        // Track purchase conversion for Meta Ads
-        trackPurchase(latestOrder.total, 'MDL', latestOrder.id);
+        // Track purchase conversion for Meta Ads (if configured)
+        if (isMetaPixelConfigured()) {
+          trackPurchase(latestOrder.total, 'MDL', latestOrder.id);
+        }
       }
     }
   }, []);

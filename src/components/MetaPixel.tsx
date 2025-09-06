@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 interface MetaPixelProps {
-  pixelId: string;
+  pixelId: string | null;
 }
 
 declare global {
@@ -12,6 +12,12 @@ declare global {
 
 const MetaPixel: React.FC<MetaPixelProps> = ({ pixelId }) => {
   useEffect(() => {
+    // Skip loading if no pixel ID is provided
+    if (!pixelId) {
+      console.log('Meta Pixel: No Pixel ID configured, skipping initialization');
+      return;
+    }
+
     // Load Meta Pixel script
     const script = document.createElement('script');
     script.innerHTML = `
@@ -30,7 +36,7 @@ const MetaPixel: React.FC<MetaPixelProps> = ({ pixelId }) => {
 
     // Cleanup function
     return () => {
-      const existingScript = document.querySelector(`script[data-pixel-id="${pixelId}"]`);
+      const existingScript = document.querySelector('script[src*="fbevents.js"]');
       if (existingScript) {
         existingScript.remove();
       }
@@ -51,18 +57,9 @@ export const trackPurchase = (value: number, currency: string = 'MDL', orderId?:
       content_type: 'product'
     });
   } else {
-    console.log('Meta Pixel: Not loaded yet, retrying...');
-    // Retry after a short delay if pixel isn't loaded
-    setTimeout(() => {
-      if (typeof window !== 'undefined' && window.fbq) {
-        window.fbq('track', 'Purchase', {
-          value: value,
-          currency: currency,
-          content_ids: [orderId],
-          content_type: 'product'
-        });
-      }
-    }, 1000);
+    console.log('Meta Pixel: Not configured or not loaded yet');
+    // Log the event for debugging purposes
+    console.log('Purchase Event (Meta Pixel not active):', { value, currency, orderId });
   }
 };
 
@@ -74,6 +71,8 @@ export const trackAddToCart = (value: number, currency: string = 'MDL', productI
       content_ids: [productId],
       content_type: 'product'
     });
+  } else {
+    console.log('AddToCart Event (Meta Pixel not active):', { value, currency, productId });
   }
 };
 
@@ -83,6 +82,8 @@ export const trackInitiateCheckout = (value: number, currency: string = 'MDL') =
       value: value,
       currency: currency
     });
+  } else {
+    console.log('InitiateCheckout Event (Meta Pixel not active):', { value, currency });
   }
 };
 

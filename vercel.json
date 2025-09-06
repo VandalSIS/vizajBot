@@ -20,6 +20,6 @@
     }
   ],
   "env": {
-    "REACT_APP_META_PIXEL_ID": "@meta_pixel_id"
+    "VITE_META_PIXEL_ID": "@meta_pixel_id"
   }
 }
