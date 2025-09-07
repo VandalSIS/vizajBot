@@ -3,6 +3,7 @@ import { CheckCircle, Package, Truck, Home, ShoppingBag } from 'lucide-react';
 import MetaPixel, { trackPurchase } from '../components/MetaPixel';
 import { getPixelId, isMetaPixelConfigured } from '../config/metaPixel';
 import { trackPurchase as trackGAPurchase, trackUTMParameters } from '../components/GoogleAnalytics';
+import { trackPurchase as trackGTMPurchase, trackUTMParameters as trackGTMUTM } from '../components/GoogleTagManager';
 
 const SuccessPage: React.FC = () => {
   const [orderId, setOrderId] = useState<string>('');
@@ -30,8 +31,12 @@ const SuccessPage: React.FC = () => {
         // Track purchase for Google Analytics
         trackGAPurchase(foundOrder.id, foundOrder.total, 'MDL', foundOrder.items);
         
+        // Track purchase for Google Tag Manager
+        trackGTMPurchase(foundOrder.id, foundOrder.total, 'MDL', foundOrder.items);
+        
         // Track UTM parameters
         trackUTMParameters();
+        trackGTMUTM();
       }
     } else {
       // If no order parameter in URL, get the most recent order
@@ -49,8 +54,12 @@ const SuccessPage: React.FC = () => {
         // Track purchase for Google Analytics
         trackGAPurchase(latestOrder.id, latestOrder.total, 'MDL', latestOrder.items);
         
+        // Track purchase for Google Tag Manager
+        trackGTMPurchase(latestOrder.id, latestOrder.total, 'MDL', latestOrder.items);
+        
         // Track UTM parameters
         trackUTMParameters();
+        trackGTMUTM();
       }
     }
   }, []);

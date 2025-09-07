@@ -7,7 +7,9 @@ import CookieConsent from './components/CookieConsent';
 import TidioChat from './components/TidioChat';
 import UTMAnalytics from './components/UTMAnalytics';
 import GoogleAnalytics from './components/GoogleAnalytics';
+import GoogleTagManager from './components/GoogleTagManager';
 import { getGAId } from './config/googleAnalytics';
+import { getGTMId } from './config/googleTagManager';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -37,6 +39,7 @@ function App() {
           <TidioChat />
           <UTMAnalytics />
           <GoogleAnalytics measurementId={getGAId()} />
+          <GoogleTagManager containerId={getGTMId()} />
         </div>
       </Router>
     </CartProvider>

@@ -3,6 +3,7 @@ import { Heart, ShoppingCart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { trackAddToCart } from './MetaPixel';
 import { trackAddToCart as trackGAAddToCart, trackViewItem } from './GoogleAnalytics';
+import { trackAddToCart as trackGTMAddToCart, trackViewItem as trackGTMViewItem } from './GoogleTagManager';
 
 interface Product {
   id: string;
@@ -33,11 +34,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     trackAddToCart(product.price, 'MDL', product.id);
     // Track AddToCart event for Google Analytics
     trackGAAddToCart(product.id, product.name, product.brand, product.price, 'MDL');
+    // Track AddToCart event for Google Tag Manager
+    trackGTMAddToCart(product.id, product.name, product.brand, product.price, 'MDL');
   };
 
   const handleProductView = () => {
     // Track product view for Google Analytics
     trackViewItem(product.id, product.name, product.brand, product.price, 'MDL');
+    // Track product view for Google Tag Manager
+    trackGTMViewItem(product.id, product.name, product.brand, product.price, 'MDL');
   };
 
   return (
