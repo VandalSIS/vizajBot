@@ -1,0 +1,166 @@
+import React, { useEffect } from 'react';
+import { getGAId, isGAConfigured } from '../config/googleAnalytics';
+
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+    dataLayer: any[];
+  }
+}
+
+interface GoogleAnalyticsProps {
+  measurementId: string;
+}
+
+const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({ measurementId }) => {
+  useEffect(() => {
+    // Skip loading if no measurement ID is provided
+    if (!measurementId || !isGAConfigured()) {
+      console.log('Google Analytics: No Measurement ID configured, skipping initialization');
+      return;
+    }
+
+    // Load Google Analytics script
+    const script1 = document.createElement('script');
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    document.head.appendChild(script1);
+
+    // Initialize gtag
+    const script2 = document.createElement('script');
+    script2.innerHTML = `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${measurementId}', {
+        page_title: document.title,
+        page_location: window.location.href,
+        send_page_view: true
+      });
+    `;
+    document.head.appendChild(script2);
+
+    // Cleanup function
+    return () => {
+      const existingScripts = document.querySelectorAll('script[src*="googletagmanager.com"]');
+      existingScripts.forEach(script => script.remove());
+    };
+  }, [measurementId]);
+
+  return null;
+};
+
+// Enhanced E-commerce tracking functions
+export const trackPurchase = (transactionId: string, value: number, currency: string = 'MDL', items?: any[]) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    console.log('Google Analytics: Tracking Purchase', { transactionId, value, currency, items });
+    
+    window.gtag('event', 'purchase', {
+      transaction_id: transactionId,
+      value: value,
+      currency: currency,
+      items: items || []
+    });
+  } else {
+    console.log('Purchase Event (Google Analytics not active):', { transactionId, value, currency, items });
+  }
+};
+
+export const trackAddToCart = (itemId: string, itemName: string, category: string, value: number, currency: string = 'MDL') => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'add_to_cart', {
+      currency: currency,
+      value: value,
+      items: [{
+        item_id: itemId,
+        item_name: itemName,
+        item_category: category,
+        price: value,
+        quantity: 1
+      }]
+    });
+  } else {
+    console.log('AddToCart Event (Google Analytics not active):', { itemId, itemName, category, value, currency });
+  }
+};
+
+export const trackBeginCheckout = (value: number, currency: string = 'MDL', items?: any[]) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'begin_checkout', {
+      currency: currency,
+      value: value,
+      items: items || []
+    });
+  } else {
+    console.log('BeginCheckout Event (Google Analytics not active):', { value, currency, items });
+  }
+};
+
+export const trackViewItem = (itemId: string, itemName: string, category: string, price: number, currency: string = 'MDL') => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'view_item', {
+      currency: currency,
+      value: price,
+      items: [{
+        item_id: itemId,
+        item_name: itemName,
+        item_category: category,
+        price: price
+      }]
+    });
+  } else {
+    console.log('ViewItem Event (Google Analytics not active):', { itemId, itemName, category, price, currency });
+  }
+};
+
+export const trackSearch = (searchTerm: string) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'search', {
+      search_term: searchTerm
+    });
+  } else {
+    console.log('Search Event (Google Analytics not active):', { searchTerm });
+  }
+};
+
+export const trackPageView = (pageTitle: string, pageLocation: string) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', 'page_view', {
+      page_title: pageTitle,
+      page_location: pageLocation
+    });
+  } else {
+    console.log('PageView Event (Google Analytics not active):', { pageTitle, pageLocation });
+  }
+};
+
+export const trackCustomEvent = (eventName: string, parameters?: any) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, parameters);
+  } else {
+    console.log(`Custom Event ${eventName} (Google Analytics not active):`, parameters);
+  }
+};
+
+// UTM parameter tracking
+export const trackUTMParameters = () => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    const utmData = {
+      utm_source: urlParams.get('utm_source'),
+      utm_medium: urlParams.get('utm_medium'),
+      utm_campaign: urlParams.get('utm_campaign'),
+      utm_content: urlParams.get('utm_content'),
+      utm_term: urlParams.get('utm_term')
+    };
+
+    // Only track if UTM parameters are present
+    if (utmData.utm_source || utmData.utm_medium || utmData.utm_campaign) {
+      window.gtag('event', 'campaign_traffic', utmData);
+      console.log('Google Analytics: UTM parameters tracked', utmData);
+    }
+  }
+};
+
+export default GoogleAnalytics;

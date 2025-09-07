@@ -5,6 +5,9 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
 import TidioChat from './components/TidioChat';
+import UTMAnalytics from './components/UTMAnalytics';
+import GoogleAnalytics from './components/GoogleAnalytics';
+import { getGAId } from './config/googleAnalytics';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -32,6 +35,8 @@ function App() {
           <Footer />
           <CookieConsent />
           <TidioChat />
+          <UTMAnalytics />
+          <GoogleAnalytics measurementId={getGAId()} />
         </div>
       </Router>
     </CartProvider>

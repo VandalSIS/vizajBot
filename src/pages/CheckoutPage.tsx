@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { ArrowLeft, CreditCard, MapPin, User, Phone, Mail } from 'lucide-react';
 import { trackInitiateCheckout } from '../components/MetaPixel';
+import { trackBeginCheckout, trackUTMParameters } from '../components/GoogleAnalytics';
 
 const CheckoutPage: React.FC = () => {
   const { state: cartState, dispatch } = useCart();
@@ -25,6 +26,10 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     if (cartState.items.length > 0) {
       trackInitiateCheckout(cartState.total, 'MDL');
+      // Track for Google Analytics
+      trackBeginCheckout(cartState.total, 'MDL', cartState.items);
+      // Track UTM parameters
+      trackUTMParameters();
     }
   }, [cartState.total]);
 

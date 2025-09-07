@@ -2,11 +2,16 @@ import React, { useEffect } from 'react';
 import ProductSection from '../components/ProductSection';
 import BlogSection from '../components/BlogSection';
 import { trackViewContent } from '../components/MetaPixel';
+import { trackPageView, trackUTMParameters } from '../components/GoogleAnalytics';
 
 const HomePage: React.FC = () => {
   // Track page view
   useEffect(() => {
     trackViewContent('homepage', 'Vizaje Nica Homepage');
+    // Track for Google Analytics
+    trackPageView('Vizaje Nica Homepage', window.location.href);
+    // Track UTM parameters
+    trackUTMParameters();
   }, []);
 
   // Sample data - în producție acestea vor veni de la API

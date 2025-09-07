@@ -2,6 +2,7 @@ import React from 'react';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { trackAddToCart } from './MetaPixel';
+import { trackAddToCart as trackGAAddToCart, trackViewItem } from './GoogleAnalytics';
 
 interface Product {
   id: string;
@@ -30,6 +31,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     dispatch({ type: 'ADD_ITEM', payload: product });
     // Track AddToCart event for Meta Ads
     trackAddToCart(product.price, 'MDL', product.id);
+    // Track AddToCart event for Google Analytics
+    trackGAAddToCart(product.id, product.name, product.brand, product.price, 'MDL');
+  };
+
+  const handleProductView = () => {
+    // Track product view for Google Analytics
+    trackViewItem(product.id, product.name, product.brand, product.price, 'MDL');
   };
 
   return (
@@ -38,7 +46,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+          onClick={handleProductView}
         />
         
         {/* Badges */}
