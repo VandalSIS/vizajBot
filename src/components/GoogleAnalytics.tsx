@@ -27,17 +27,45 @@ const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({ measurementId }) => {
     script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
     document.head.appendChild(script1);
 
-    // Initialize gtag
+    // Initialize gtag with UTM parameter capture
     const script2 = document.createElement('script');
     script2.innerHTML = `
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+      
+      // Get UTM parameters from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const utmSource = urlParams.get('utm_source');
+      const utmMedium = urlParams.get('utm_medium');
+      const utmCampaign = urlParams.get('utm_campaign');
+      const utmContent = urlParams.get('utm_content');
+      const utmTerm = urlParams.get('utm_term');
+      
+      // Configure GA4 with UTM parameters
       gtag('config', '${measurementId}', {
         page_title: document.title,
         page_location: window.location.href,
-        send_page_view: true
+        send_page_view: true,
+        custom_map: {
+          'custom_parameter_1': utmSource,
+          'custom_parameter_2': utmMedium,
+          'custom_parameter_3': utmCampaign,
+          'custom_parameter_4': utmContent,
+          'custom_parameter_5': utmTerm
+        }
       });
+      
+      // Track UTM parameters as custom event if present
+      if (utmSource || utmMedium || utmCampaign) {
+        gtag('event', 'campaign_traffic', {
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm
+        });
+      }
     `;
     document.head.appendChild(script2);
 
@@ -54,13 +82,22 @@ const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({ measurementId }) => {
 // Enhanced E-commerce tracking functions
 export const trackPurchase = (transactionId: string, value: number, currency: string = 'MDL', items?: any[]) => {
   if (typeof window !== 'undefined' && window.gtag) {
+    // Get UTM parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const storedUTM = getStoredUTMParameters();
+    
     console.log('Google Analytics: Tracking Purchase', { transactionId, value, currency, items });
     
     window.gtag('event', 'purchase', {
       transaction_id: transactionId,
       value: value,
       currency: currency,
-      items: items || []
+      items: items || [],
+      utm_source: urlParams.get('utm_source') || storedUTM.utm_source,
+      utm_medium: urlParams.get('utm_medium') || storedUTM.utm_medium,
+      utm_campaign: urlParams.get('utm_campaign') || storedUTM.utm_campaign,
+      utm_content: urlParams.get('utm_content') || storedUTM.utm_content,
+      utm_term: urlParams.get('utm_term') || storedUTM.utm_term
     });
   } else {
     console.log('Purchase Event (Google Analytics not active):', { transactionId, value, currency, items });
@@ -69,6 +106,10 @@ export const trackPurchase = (transactionId: string, value: number, currency: st
 
 export const trackAddToCart = (itemId: string, itemName: string, category: string, value: number, currency: string = 'MDL') => {
   if (typeof window !== 'undefined' && window.gtag) {
+    // Get UTM parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const storedUTM = getStoredUTMParameters();
+    
     window.gtag('event', 'add_to_cart', {
       currency: currency,
       value: value,
@@ -78,7 +119,12 @@ export const trackAddToCart = (itemId: string, itemName: string, category: strin
         item_category: category,
         price: value,
         quantity: 1
-      }]
+      }],
+      utm_source: urlParams.get('utm_source') || storedUTM.utm_source,
+      utm_medium: urlParams.get('utm_medium') || storedUTM.utm_medium,
+      utm_campaign: urlParams.get('utm_campaign') || storedUTM.utm_campaign,
+      utm_content: urlParams.get('utm_content') || storedUTM.utm_content,
+      utm_term: urlParams.get('utm_term') || storedUTM.utm_term
     });
   } else {
     console.log('AddToCart Event (Google Analytics not active):', { itemId, itemName, category, value, currency });
@@ -87,10 +133,19 @@ export const trackAddToCart = (itemId: string, itemName: string, category: strin
 
 export const trackBeginCheckout = (value: number, currency: string = 'MDL', items?: any[]) => {
   if (typeof window !== 'undefined' && window.gtag) {
+    // Get UTM parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const storedUTM = getStoredUTMParameters();
+    
     window.gtag('event', 'begin_checkout', {
       currency: currency,
       value: value,
-      items: items || []
+      items: items || [],
+      utm_source: urlParams.get('utm_source') || storedUTM.utm_source,
+      utm_medium: urlParams.get('utm_medium') || storedUTM.utm_medium,
+      utm_campaign: urlParams.get('utm_campaign') || storedUTM.utm_campaign,
+      utm_content: urlParams.get('utm_content') || storedUTM.utm_content,
+      utm_term: urlParams.get('utm_term') || storedUTM.utm_term
     });
   } else {
     console.log('BeginCheckout Event (Google Analytics not active):', { value, currency, items });
@@ -164,7 +219,18 @@ export const trackUTMParameters = () => {
       // Track as custom event
       window.gtag('event', 'campaign_traffic', utmData);
       
-      // Also set as custom parameters for all future events
+      // Also track as page_view with UTM parameters
+      window.gtag('event', 'page_view', {
+        page_title: document.title,
+        page_location: window.location.href,
+        utm_source: utmData.utm_source,
+        utm_medium: utmData.utm_medium,
+        utm_campaign: utmData.utm_campaign,
+        utm_content: utmData.utm_content,
+        utm_term: utmData.utm_term
+      });
+      
+      // Set as custom parameters for all future events
       window.gtag('config', getGAId(), {
         custom_map: {
           'custom_parameter_1': utmData.utm_source,
@@ -183,13 +249,18 @@ export const trackUTMParameters = () => {
 // Track events with UTM parameters
 export const trackEventWithUTM = (eventName: string, parameters: any = {}) => {
   if (typeof window !== 'undefined' && window.gtag) {
-    // Get stored UTM parameters
+    // Get UTM parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
     const storedUTM = getStoredUTMParameters();
     
     // Add UTM parameters to event
     const eventData = {
       ...parameters,
-      ...storedUTM
+      utm_source: urlParams.get('utm_source') || storedUTM.utm_source,
+      utm_medium: urlParams.get('utm_medium') || storedUTM.utm_medium,
+      utm_campaign: urlParams.get('utm_campaign') || storedUTM.utm_campaign,
+      utm_content: urlParams.get('utm_content') || storedUTM.utm_content,
+      utm_term: urlParams.get('utm_term') || storedUTM.utm_term
     };
     
     window.gtag('event', eventName, eventData);
