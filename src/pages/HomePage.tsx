@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ProductSection from '../components/ProductSection';
 import BlogSection from '../components/BlogSection';
+import { trackViewContent } from '../components/MetaPixel';
 
 const HomePage: React.FC = () => {
+  // Track page view
+  useEffect(() => {
+    trackViewContent('homepage', 'Vizaje Nica Homepage');
+  }, []);
+
   // Sample data - în producție acestea vor veni de la API
   const newProducts = [
     {

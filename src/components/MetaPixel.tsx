@@ -31,8 +31,19 @@ const MetaPixel: React.FC<MetaPixelProps> = ({ pixelId }) => {
       'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '${pixelId}');
       fbq('track', 'PageView');
+      
+      // Track additional events for comprehensive analytics
+      fbq('track', 'ViewContent', {
+        content_type: 'website',
+        content_name: 'Vizaje Nica Homepage'
+      });
     `;
     document.head.appendChild(script);
+
+    // Add noscript fallback
+    const noscript = document.createElement('noscript');
+    noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1" />`;
+    document.head.appendChild(noscript);
 
     // Cleanup function
     return () => {
@@ -84,6 +95,64 @@ export const trackInitiateCheckout = (value: number, currency: string = 'MDL') =
     });
   } else {
     console.log('InitiateCheckout Event (Meta Pixel not active):', { value, currency });
+  }
+};
+
+// Additional tracking functions for comprehensive analytics
+export const trackViewContent = (contentType: string, contentName: string, contentId?: string) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'ViewContent', {
+      content_type: contentType,
+      content_name: contentName,
+      content_ids: contentId ? [contentId] : undefined
+    });
+  } else {
+    console.log('ViewContent Event (Meta Pixel not active):', { contentType, contentName, contentId });
+  }
+};
+
+export const trackSearch = (searchString: string) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'Search', {
+      search_string: searchString
+    });
+  } else {
+    console.log('Search Event (Meta Pixel not active):', { searchString });
+  }
+};
+
+export const trackContact = () => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'Contact');
+  } else {
+    console.log('Contact Event (Meta Pixel not active)');
+  }
+};
+
+export const trackLead = (value?: number, currency: string = 'MDL') => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'Lead', {
+      value: value,
+      currency: currency
+    });
+  } else {
+    console.log('Lead Event (Meta Pixel not active):', { value, currency });
+  }
+};
+
+export const trackCompleteRegistration = () => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'CompleteRegistration');
+  } else {
+    console.log('CompleteRegistration Event (Meta Pixel not active)');
+  }
+};
+
+export const trackCustomEvent = (eventName: string, parameters?: any) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('trackCustom', eventName, parameters);
+  } else {
+    console.log(`Custom Event ${eventName} (Meta Pixel not active):`, parameters);
   }
 };
 

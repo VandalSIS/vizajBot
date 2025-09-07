@@ -1,7 +1,7 @@
 // Meta Pixel Configuration
 // Replace 'YOUR_META_PIXEL_ID' with your actual Meta Pixel ID from Facebook Ads Manager
 
-export const META_PIXEL_ID = 'YOUR_META_PIXEL_ID'; // TODO: Replace with your actual Pixel ID from Facebook Events Manager
+export const META_PIXEL_ID = '1245097213969744'; // Your actual Meta Pixel ID
 
 // Example: export const META_PIXEL_ID = '123456789012345';
 

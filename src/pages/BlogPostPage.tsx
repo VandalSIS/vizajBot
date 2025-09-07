@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Calendar, User, ArrowLeft, Share2, Heart, Bookmark } from 'lucide-react';
 import { useParams } from 'react-router-dom';
+import { trackViewContent } from '../components/MetaPixel';
 
 interface BlogPost {
   id: string;
@@ -18,6 +19,13 @@ interface BlogPost {
 
 const BlogPostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+
+  // Track page view
+  useEffect(() => {
+    if (slug) {
+      trackViewContent('blog_post', `Blog Post: ${slug}`);
+    }
+  }, [slug]);
 
   // În producție, aceste date vor veni de la API
   const blogPost: BlogPost = {

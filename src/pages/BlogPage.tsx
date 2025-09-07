@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 import BlogCard from '../components/BlogCard';
+import { trackViewContent, trackSearch } from '../components/MetaPixel';
 
 interface BlogPost {
   id: string;
@@ -18,6 +19,22 @@ interface BlogPost {
 const BlogPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+
+  // Track page view
+  useEffect(() => {
+    trackViewContent('blog', 'Blog Page');
+  }, []);
+
+  // Track search events
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      const timeoutId = setTimeout(() => {
+        trackSearch(searchTerm);
+      }, 1000); // Debounce search tracking
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchTerm]);
 
   const categories = ['Toate', 'Machiaj', 'Îngrijire', 'Parfumerie', 'Îngrijirea Părului', 'Bărbați'];
 

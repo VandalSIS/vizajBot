@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, Grid, List } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import { trackViewContent, trackSearch } from '../components/MetaPixel';
 
 interface Product {
   id: string;
@@ -21,6 +22,22 @@ const ProductsPage: React.FC = () => {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Track page view
+  useEffect(() => {
+    trackViewContent('products', 'Products Page');
+  }, []);
+
+  // Track search events
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      const timeoutId = setTimeout(() => {
+        trackSearch(searchTerm);
+      }, 1000); // Debounce search tracking
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchTerm]);
 
   // Sample products data
   const allProducts: Product[] = [
