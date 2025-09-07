@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { getGAId, isGAConfigured } from '../config/googleAnalytics';
+import { storeUTMParameters, getStoredUTMParameters } from '../config/gaUTMConfig';
 
 declare global {
   interface Window {
@@ -142,7 +143,7 @@ export const trackCustomEvent = (eventName: string, parameters?: any) => {
   }
 };
 
-// UTM parameter tracking
+// Enhanced UTM parameter tracking
 export const trackUTMParameters = () => {
   if (typeof window !== 'undefined' && window.gtag) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -155,11 +156,44 @@ export const trackUTMParameters = () => {
       utm_term: urlParams.get('utm_term')
     };
 
+    // Store UTM parameters in session storage
+    storeUTMParameters();
+
     // Only track if UTM parameters are present
     if (utmData.utm_source || utmData.utm_medium || utmData.utm_campaign) {
+      // Track as custom event
       window.gtag('event', 'campaign_traffic', utmData);
-      console.log('Google Analytics: UTM parameters tracked', utmData);
+      
+      // Also set as custom parameters for all future events
+      window.gtag('config', getGAId(), {
+        custom_map: {
+          'custom_parameter_1': utmData.utm_source,
+          'custom_parameter_2': utmData.utm_medium,
+          'custom_parameter_3': utmData.utm_campaign,
+          'custom_parameter_4': utmData.utm_content,
+          'custom_parameter_5': utmData.utm_term
+        }
+      });
+      
+      console.log('Google Analytics: UTM parameters tracked and stored', utmData);
     }
+  }
+};
+
+// Track events with UTM parameters
+export const trackEventWithUTM = (eventName: string, parameters: any = {}) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    // Get stored UTM parameters
+    const storedUTM = getStoredUTMParameters();
+    
+    // Add UTM parameters to event
+    const eventData = {
+      ...parameters,
+      ...storedUTM
+    };
+    
+    window.gtag('event', eventName, eventData);
+    console.log(`Google Analytics: ${eventName} event with UTM data`, eventData);
   }
 };
 
